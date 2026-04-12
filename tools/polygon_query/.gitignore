@@ -1,0 +1,5 @@
+.env
+*.csv
+*_report.txt
+*_ai_report.md
+__pycache__/

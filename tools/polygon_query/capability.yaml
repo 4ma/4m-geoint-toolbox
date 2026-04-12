@@ -1,0 +1,116 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# capability.yaml — Machine-readable description of this tool.
+#
+# This file is designed to be read by AI assistants (Claude Code, etc.) so they
+# can decide whether this tool is relevant to a user's request and run it
+# without re-inventing the wheel.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: polygon_query_tool
+version: "1.1"
+title: Utility Owners Polygon Query Tool
+
+# ── What it does ─────────────────────────────────────────────────────────────
+description: |
+  Given one or more polygon geometries (WKT / MultiPolygon / Polygon), this
+  tool queries the utility-owners production PostgreSQL/PostGIS database to find
+  every ticket whose geometry intersects with the input polygon(s).
+
+  For each polygon it produces:
+    1. A CSV with full raw data (geometry, infrastructure, timestamps, etc.)
+    2. A deterministic text report (ticket list, company responses, sector breakdown)
+    3. (Optional, --ai flag) An AI-enhanced analysis powered by the Claude API
+       that uses judgment to classify sectors, assess risk, flag anomalies,
+       and generate a Slack-ready summary.
+
+# ── When to use it ───────────────────────────────────────────────────────────
+# These are natural-language patterns that describe situations where this tool
+# is the right answer. An AI assistant should match user intent against these.
+triggers:
+  - user has a polygon or WKT and wants to find utility-owner tickets inside it
+  - user wants to know which utility companies have infrastructure in an area
+  - user asks whether gas, electricity, telecom, or water companies responded "located"
+  - user is investigating false-positive road-mark detections and wants to check ticket history
+  - user wants a CSV export of utility-owner data for a geographic boundary
+  - user needs a summary of who responded (located / clear / no_response) in a project area
+  - user asks "how far back do tickets go" for a given polygon
+  - user has a Caltrans / DOT project boundary and needs utility data
+  - user wants to check if there is any positive answer for gas/electricity in a polygon
+  - user asks "are there any tickets in this area" or "pull ticket data for this boundary"
+
+# ── What it does NOT do ──────────────────────────────────────────────────────
+out_of_scope:
+  - It does not write to the database (read-only)
+  - It does not fetch tickets from MySQL source tables (only queries the processed PostGIS data)
+  - It does not handle contact-coverage or organization-contact queries
+  - It does not render maps or visualizations
+
+# ── Inputs ───────────────────────────────────────────────────────────────────
+inputs:
+  polygon_wkt:
+    description: "WKT geometry string — Polygon or MultiPolygon, SRID 4326 (WGS84)"
+    format: "Can be provided as a .wkt file or inline via --wkt flag"
+    example: "MultiPolygon (((-116.03 32.72, -116.02 32.72, -116.02 32.73, -116.03 32.73, -116.03 32.72)))"
+  credentials:
+    description: "PostgreSQL credentials in .env file (DB_HOST, DB_USER, DB_PASSWORD)"
+    note: "Connects to the utility-owners production RDS instance"
+
+# ── Outputs ──────────────────────────────────────────────────────────────────
+outputs:
+  csv:
+    description: "One CSV per polygon with columns: geometry_uuid, source_name, source_ticket_id, ticket_revision, area_sqm, is_contains_located, ticket_creation_ts, contained_infrastructure (JSON), ticket_location, geom_wkt, etc."
+  report_txt:
+    description: "Deterministic text report with: ticket timeline, per-ticket company breakdown, located summary, gas/electricity summary, all companies list"
+  ai_report_md:
+    description: "(Only with --ai flag) AI-generated Markdown report with sector classification, risk flags, and Slack-ready summary"
+
+# ── How to run ───────────────────────────────────────────────────────────────
+run:
+  setup: |
+    cd polygon_query_tool
+    pip install -r requirements.txt
+    cp .env.example .env   # fill in DB_USER and DB_PASSWORD
+  basic: "python query_polygon.py <polygon.wkt>"
+  multiple: "python query_polygon.py p1.wkt p2.wkt --output-dir ./results"
+  inline: 'python query_polygon.py --wkt "MultiPolygon(((...)))"'
+  with_ai: "python query_polygon.py polygon.wkt --ai"
+  with_names: "python query_polygon.py p1.wkt --name 'My-Project-Area'"
+
+# ── Database details (for context, not credentials) ──────────────────────────
+database:
+  host: "${DB_HOST}  # set in .env"
+  port: 5432
+  name: utility_owners
+  tables_used:
+    - utility_owners.utility_owners_geometry  # geom column, PostGIS spatial index
+    - utility_owners.utility_owners_data       # contained_infrastructure JSON, ticket_creation_ts
+  join: "utility_owners_data.utility_owners_geometry_uuid = utility_owners_geometry.uuid"
+  spatial_op: "ST_Intersects(geom, input_polygon)"
+
+# ── Data model context ───────────────────────────────────────────────────────
+domain:
+  contained_infrastructure: |
+    JSON dict keyed by utility code (e.g. "ATTATL", "PGEUKH"). Each value has:
+      organization_name, phone_number, contact_name, contact_email, contact_type,
+      utility_code_id, sector, subsector, last_owner_response, last_response_creation_ts
+  responses:
+    - located: "Company confirmed infrastructure in the area and marked it"
+    - clear: "Company confirmed NO infrastructure in the area"
+    - no_response: "Company did not respond to the ticket"
+    - no_markings_requested: "No markings requested from this company"
+    - undetermined: "Response status unclear"
+  sectors:
+    "10001": Electricity
+    "10002": Communication
+    "10003": "Energy (Gas/Oil/Steam)"
+    "10004": Water
+    "10005": Undetermined
+    "10006": Sewage
+    "10007": Reclaimed Water
+
+# ── Health ───────────────────────────────────────────────────────────────────
+health:
+  status: active
+  last_tested: 2026-04-12
+  tested_by: Uriele751
+  notes: "Requires VPN or network access to the utility-owners RDS instance"

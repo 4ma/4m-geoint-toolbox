@@ -1,0 +1,27 @@
+# Credentials
+.env
+*.pem
+*.key
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Tool outputs (generated files)
+*.csv
+*_report.txt
+*_ai_report.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

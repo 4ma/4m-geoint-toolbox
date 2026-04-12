@@ -1,0 +1,62 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# capability.yaml — Copy this template when creating a new tool.
+#
+# Every tool in this repo MUST have a capability.yaml. This is how Claude
+# discovers and matches tools to user requests.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: my_tool_name
+version: "1.0"
+title: Human-Readable Tool Title
+
+# ── What it does ─────────────────────────────────────────────────────────────
+description: |
+  One or two paragraphs explaining what this tool does.
+  Be specific — this is what Claude reads to decide if the tool is relevant.
+
+# ── When to use it ───────────────────────────────────────────────────────────
+# Natural-language patterns. Claude matches user intent against these.
+# Write them from the user's perspective — "user wants to...", "user asks..."
+triggers:
+  - user wants to ...
+  - user asks about ...
+  - user has [input] and needs [output]
+
+# ── What it does NOT do ──────────────────────────────────────────────────────
+out_of_scope:
+  - It does not ...
+  - It does not ...
+
+# ── Inputs ───────────────────────────────────────────────────────────────────
+inputs:
+  main_input:
+    description: "What goes in"
+    format: "File type, string format, etc."
+    example: "A concrete example"
+  credentials:
+    description: "What credentials are needed (if any)"
+    note: "Where they connect to"
+
+# ── Outputs ──────────────────────────────────────────────────────────────────
+outputs:
+  main_output:
+    description: "What comes out"
+
+# ── How to run ───────────────────────────────────────────────────────────────
+run:
+  setup: |
+    cd tools/<tool_name>
+    pip install -r requirements.txt
+    cp .env.example .env   # fill in credentials
+  basic: "python main_script.py <input>"
+
+# ── Health ───────────────────────────────────────────────────────────────────
+health:
+  status: active          # active | deprecated | experimental
+  last_tested: 2026-04-12 # update when you verify the tool works
+  tested_by: your_github_handle
+  notes: ""               # e.g. "needs Python 3.10+", "requires VPN"
+
+# ── Dependencies on other tools ──────────────────────────────────────────────
+# If this tool reuses shared utilities or depends on another tool, list them.
+depends_on: []
