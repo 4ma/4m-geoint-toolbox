@@ -1,0 +1,8 @@
+# setting up the AI Gate Keeper as mentioned in
+# https://docs.google.com/document/d/1adFfRQynoPYsKTLW4K2XkVL-Js-9AtUsW8yNccYLjfo/edit?tab=t.0#heading=h.2mbtap4hufrl
+name: Uri Eliyahu
+email: uriel@4m-a.com
+github_user: Uriele751
+sensitive: false
+approved_tools:
+  Claude Code (https://www.claude.com/product/claude-code)
