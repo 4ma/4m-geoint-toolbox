@@ -37,6 +37,8 @@ triggers:
   - user has a Caltrans / DOT project boundary and needs utility data
   - user wants to check if there is any positive answer for gas/electricity in a polygon
   - user asks "are there any tickets in this area" or "pull ticket data for this boundary"
+  - user asks about water companies, gas companies, electric companies, or telecom in a polygon
+  - user pastes a polygon geometry and asks about utility companies in that area
 
 # ── What it does NOT do ──────────────────────────────────────────────────────
 out_of_scope:
@@ -66,10 +68,11 @@ outputs:
 
 # ── How to run ───────────────────────────────────────────────────────────────
 run:
+  working_directory: tools/polygon_query   # always cd here from repo root first
   setup: |
-    cd polygon_query_tool
+    cd tools/polygon_query
     pip install -r requirements.txt
-    cp .env.example .env   # fill in DB_USER and DB_PASSWORD
+    # .env must exist with DB_HOST, DB_USER, DB_PASSWORD — see .env.example
   basic: "python query_polygon.py <polygon.wkt>"
   multiple: "python query_polygon.py p1.wkt p2.wkt --output-dir ./results"
   inline: 'python query_polygon.py --wkt "MultiPolygon(((...)))"'

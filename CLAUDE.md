@@ -52,9 +52,17 @@ Read every `tools/*/capability.yaml` file. For each tool, check:
 
 ### Step 3 — If a tool matches → run it
 - Check `health.status` is `active`
-- Follow the `run` section in `capability.yaml`
-- Make sure the user has the required credentials (check `.env.example`)
-- Run the tool and present results
+- `cd` into the tool's directory from the repo root (see `run.working_directory` in `capability.yaml`)
+- Install dependencies: `pip install -r requirements.txt` (if not already installed)
+- Verify credentials: check the tool's `.env` file exists and has the required values. If missing, tell the user to copy `.env.example` to `.env` and fill in credentials. Do NOT proceed without valid credentials.
+- Run the tool and present the results.
+
+**Handling user input:**
+- If the user pastes a polygon/WKT as text in the chat, save it to a temporary `.wkt` file in the tool directory, then pass that file to the script. Alternatively, use the `--wkt` flag with the inline text.
+- If the user provides a URL/link to a polygon file, download it first (using curl or Python), then pass the local file.
+- If the user asks about a specific sector (e.g., "water companies", "gas companies"), run the tool to get ALL results, then filter and highlight only the relevant sector in your response. Use these sector codes:
+  - 10001 = Electricity, 10002 = Communication, 10003 = Energy (Gas/Oil/Steam)
+  - 10004 = Water, 10005 = Undetermined, 10006 = Sewage, 10007 = Reclaimed Water
 
 ### Step 4 — If a tool partially matches → EXTEND it (preferred)
 If a tool does 70-80% of what the user needs, **modify it** rather than creating a new tool.
