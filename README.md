@@ -19,6 +19,7 @@ claude
 | Tool | Description |
 |------|-------------|
 | [polygon_query](tools/polygon_query/) | Query utility-owner tickets intersecting with polygon geometries (PostGIS). Outputs CSV, text report, and optional AI analysis. |
+| [taxonomy_organization_names](tools/taxonomy_organization_names/) | Extract all unique organization names from any MySQL ticket table in amiggi4mdb (T_OH_TICKET, T_CA_TICKET, etc.). Outputs a CSV for taxonomy building or classification. |
 
 ## How It Works
 

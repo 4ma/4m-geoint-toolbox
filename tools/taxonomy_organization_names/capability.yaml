@@ -1,0 +1,106 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# capability.yaml — Machine-readable description of this tool.
+#
+# This file is designed to be read by AI assistants (Claude Code, etc.) so they
+# can decide whether this tool is relevant to a user's request and run it
+# without re-inventing the wheel.
+# ─────────────────────────────────────────────────────────────────────────────
+
+name: taxonomy_org_names
+version: "1.0"
+title: Organization Names Extraction Tool
+
+# ── What it does ─────────────────────────────────────────────────────────────
+description: |
+  Extracts all unique organization names from any MySQL ticket table in the
+  amiggi4mdb database (e.g. T_OH_TICKET, T_CA_TICKET, T_TX_TICKET, T_FL_TICKET).
+
+  The tool iterates over the table in F_ID batches, extracts names from a
+  configurable JSON column using a JSON path expression, deduplicates the
+  results, and writes a single-column CSV of unique organization names.
+
+  Designed for large tables (millions of rows): supports checkpoint/resume so
+  interrupted runs continue from where they left off. All key parameters
+  (table, JSON path, field, ID range, chunk size, output file) are configurable
+  via CLI flags. MAX(F_ID) is auto-detected if not provided.
+
+# ── When to use it ───────────────────────────────────────────────────────────
+triggers:
+  - user wants a list of all unique organization names from a state ticket table
+  - user wants to know which organizations appear in T_OH_TICKET, T_CA_TICKET, T_TX_TICKET, or any amiggi4mdb table
+  - user needs to build or refresh the taxonomy of organization names from 811 data
+  - user wants to deduplicate organization names across a state
+  - user asks "what organizations are in the Ohio / California / Texas / Florida data?"
+  - user needs to populate a lookup table or taxonomy from raw ticket data
+  - user wants to extract organization names for matching, merging, or classification
+  - user wants to export all org names from amiggi4mdb to a CSV
+
+# ── What it does NOT do ──────────────────────────────────────────────────────
+out_of_scope:
+  - It does not write to the database (read-only)
+  - It does not classify or normalize organization names — only extracts and deduplicates
+  - It does not query PostGIS / utility_owners databases — only MySQL amiggi4mdb
+  - It does not resolve duplicates caused by name variations (e.g. "PG&E" vs "Pacific Gas & Electric")
+  - It does not match organizations to sectors or utility codes
+
+# ── Inputs ───────────────────────────────────────────────────────────────────
+inputs:
+  table:
+    description: "MySQL table in amiggi4mdb to query"
+    format: "--table flag (e.g. T_OH_TICKET)"
+    example: "T_OH_TICKET, T_CA_TICKET, T_TX_TICKET, T_FL_TICKET"
+  credentials:
+    description: "MySQL credentials in .env file (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME)"
+    note: "Connects to the amiggi4mdb MySQL database"
+
+# ── Outputs ──────────────────────────────────────────────────────────────────
+outputs:
+  csv:
+    description: "Single-column CSV with header 'organization_name'. One row per unique name found."
+    filename_pattern: "<table_lower>_organizations.csv (or custom via --output)"
+
+# ── How to run ───────────────────────────────────────────────────────────────
+run:
+  working_directory: tools/taxonomy_organization_names  # always cd here from repo root first
+  setup: |
+    cd tools/taxonomy_organization_names
+    pip install -r requirements.txt
+    cp .env.example .env   # fill in DB_HOST, DB_USER, DB_PASSWORD
+  basic: "python extract_org_names.py --table T_OH_TICKET"
+  custom_output: "python extract_org_names.py --table T_CA_TICKET --output ca_orgs.csv"
+  custom_json: "python extract_org_names.py --table T_TX_TICKET --json-path '$.responses[*].name' --field F_DETAILS"
+  bounded: "python extract_org_names.py --table T_FL_TICKET --min-id 1 --max-id 2000000 --chunk-size 25000"
+  resume: "python extract_org_names.py --table T_OH_TICKET  # auto-resumes from checkpoint if interrupted"
+
+# ── CLI flags ─────────────────────────────────────────────────────────────────
+flags:
+  "--table / -t":    "REQUIRED — MySQL table name (e.g. T_OH_TICKET)"
+  "--json-path / -j": "JSON path to extract names from (default: $.responses[*].name)"
+  "--field / -f":    "JSON column in the table (default: F_DETAILS)"
+  "--min-id":        "Starting F_ID (default: 1)"
+  "--max-id":        "Ending F_ID — auto-detected via MAX(F_ID) if not provided"
+  "--chunk-size":    "IDs per batch (default: 50000)"
+  "--output / -o":   "Output CSV filename (default: <table>_organizations.csv)"
+
+# ── Database details ──────────────────────────────────────────────────────────
+database:
+  host: "${DB_HOST}  # set in .env"
+  port: 3306
+  name: "${DB_NAME}  # default: amiggi4mdb"
+  tables_supported:
+    - "T_OH_TICKET (Ohio)"
+    - "T_CA_TICKET (California)"
+    - "T_TX_TICKET (Texas)"
+    - "T_FL_TICKET (Florida)"
+    - "any table with an integer F_ID primary key and a JSON column"
+  default_json_field: "F_DETAILS"
+  default_json_path: "$.responses[*].name"
+
+# ── Health ───────────────────────────────────────────────────────────────────
+health:
+  status: active
+  last_tested: 2026-04-15
+  tested_by: noashitritt
+  notes: "Requires network access to the amiggi4mdb MySQL host. Checkpoint/resume supported for large tables."
+
+depends_on: []
