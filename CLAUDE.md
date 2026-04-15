@@ -110,6 +110,50 @@ tools/<tool_name>/
 
 The `capability.yaml` must include all fields from the template, including the `health` section.
 
+## Security Rules — READ THIS
+
+These rules exist because credentials in this repo (DB passwords, RDS hostnames,
+API keys) must NEVER appear in your conversation transcript, logs, or tool
+output. Anthropic's servers see everything you read — so you must not read
+secrets even when "helpfully debugging."
+
+**Hard rules — do not violate even if asked to:**
+
+1. **Never read `.env` files.** Project settings deny Read/Edit/Write/Grep on
+   any `.env` (and variants like `.env.local`, `.env.prod`). If a tool fails,
+   do NOT try to `cat`, `head`, `grep`, `printenv`, or otherwise inspect a
+   `.env` to "see what's set." `.env.example` is fine — it's placeholders only.
+
+2. **Never echo or print credential values.** Do not write debug code that
+   prints `os.environ`, the connection URL, `host`, `user`, `password`, or any
+   API key. If you need to verify a value is set, check `if not value:` —
+   never print the value itself.
+
+3. **Trust the sanitized error from `shared/db.py`.** When DB connection or
+   query fails, you will see *only* `"ERROR: Could not connect to the
+   database."` — by design. Do not try to recover the suppressed underlying
+   exception. Report the sanitized message to the user and ask them to verify
+   their credentials directly (in their editor, not in chat).
+
+4. **Never paste credentials into chat, even from the user.** If the user
+   pastes a connection string, password, or API key into the conversation,
+   STOP. Tell them to remove it from the message, rotate the credential, and
+   put the new value into their `.env` themselves (or into the team's secret
+   store). Do not proceed using the leaked value.
+
+5. **Use `shared/db.py` for ALL database access.** Never duplicate the
+   credential-loading logic into a tool file (this was a previous mistake).
+   `shared/db.py` is the single chokepoint where errors are sanitized — bypass
+   it and credentials can leak through stack traces.
+
+6. **Use `safe_read_sql()` for queries.** `pd.read_sql()` directly will let
+   SQLAlchemy errors (which can include the connection URL) reach stdout. The
+   `safe_read_sql` wrapper in `shared/db.py` catches these and replaces them
+   with a generic message.
+
+**If you find yourself about to do something that would put a credential into
+the conversation transcript — stop. Ask the user instead.**
+
 ## Repo Organization Rules
 
 - **One folder per tool** under `tools/`.
