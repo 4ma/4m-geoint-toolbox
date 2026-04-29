@@ -1,0 +1,46 @@
+name: Tests
+
+on: push
+
+concurrency:
+  group: ${{ github.repository }}-${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  setup-and-run-tests:
+    runs-on: [ 4ma ]
+    env:
+      NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD_ENCODED }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_GITHUB_RUNNER_ACC_KEY }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_GITHUB_RUNNER_ACC_SECRET }}
+    services:
+      test-postgis:
+        image: postgis/postgis
+        env:
+          POSTGRES_PASSWORD: Sorry123
+          PGDATA: /var/lib/postgresql/data/pgdata
+        ports:
+          - 7777:5432
+        options: --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9.18'
+
+      - run: pip install -r requirements.txt -r dev-requirements.txt -r 4ma-requirements.txt
+      - run: python coverage_run.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      - name: Upload Coverage Reports to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+          name: codecov-umbrella
+          fail_ci_if_error: true
+          verbose: true

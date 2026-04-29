@@ -1,0 +1,9 @@
+--trusted-host nexus3.dev.4m-a.org
+--extra-index https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus3.dev.4m-a.org/repository/4m-pypi-development/pypi
+--extra-index-url https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus3.dev.4m-a.org/repository/4m-pypi-development/simple
+--extra-index https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus3.dev.4m-a.org/repository/4m-pypi-releases/pypi
+--extra-index-url https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus3.dev.4m-a.org/repository/4m-pypi-releases/simple
+
+# 4m internal packages used by tools in this toolbox.
+# Add entries here as tools start depending on shared 4m libraries
+# (e.g. 4ma-db-handler, 4ma-common-utils, 4ma-geospatial-utils).
