@@ -35,15 +35,3 @@ jobs:
       - run: python coverage_run.py
         env:
           PYTHONPATH: ${{ github.workspace }}
-
-      # Codecov upload kept in place for when CODECOV_TOKEN is added to the repo.
-      # Until then, the step is non-blocking so missing/bad tokens don't fail CI.
-      - name: Upload Coverage Reports to Codecov
-        uses: codecov/codecov-action@v2
-        continue-on-error: true
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: coverage.xml
-          name: codecov-umbrella
-          fail_ci_if_error: false
-          verbose: true
