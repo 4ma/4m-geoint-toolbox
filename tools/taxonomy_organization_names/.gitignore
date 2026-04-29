@@ -1,0 +1,4 @@
+.env
+*.csv
+*_checkpoint.txt
+__pycache__/
