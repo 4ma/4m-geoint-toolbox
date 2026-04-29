@@ -1,0 +1,7 @@
+-r requirements.txt
+-r 4ma-requirements.txt
+
+pytest==7.1.3
+coverage==6.5.0
+pytest-mock
+pytest-timeout
