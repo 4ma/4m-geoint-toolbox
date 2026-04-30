@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Results — Project Research Tool</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  {% if results %}
+  <script>window.__RESULTS__ = {{ results | tojson }};</script>
+  {% endif %}
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div id="topbar">
+    <div class="topbar-field"><span>Project</span><strong id="tb-name">—</strong></div>
+    <div class="topbar-sep">·</div>
+    <div class="topbar-field"><span>ID</span><span id="tb-id" style="font-size:12px;color:var(--muted)">—</span></div>
+    <div class="topbar-sep">·</div>
+    <div class="topbar-field"><span id="tb-state">—</span></div>
+    <div class="topbar-sep">·</div>
+    <div class="topbar-field"><span id="tb-county">—</span></div>
+    <div class="topbar-sep">·</div>
+    <div class="topbar-field"><span id="tb-municipality">—</span></div>
+    <div class="topbar-sep">·</div>
+    <div class="topbar-field"><span>Co.</span><span id="tb-company">—</span></div>
+    <div class="topbar-sep">·</div>
+    <div class="topbar-field"><span>Created</span><span id="tb-created">—</span></div>
+    <div class="topbar-sep">·</div>
+    <div class="topbar-field"><span>Runtime</span><span id="tb-runtime">—</span></div>
+    <div class="topbar-actions">
+      <a id="tb-drive-btn" class="btn btn-ghost btn-sm" href="#" target="_blank" style="display:none">Open Drive ↗</a>
+      <button id="save-drive-btn" class="btn btn-ghost btn-sm">Save Results to Drive</button>
+      <a href="/" class="btn btn-ghost btn-sm">← New Search</a>
+    </div>
+  </div>
+
+  <div class="results-layout">
+
+    <!-- Sidebar Nav -->
+    <nav id="sidebar">
+      <a class="nav-item active" href="#section-summary">Summary</a>
+      <a class="nav-item" href="#section-prioritizer">Prioritizer Results</a>
+      <a class="nav-item" href="#section-downloader">Downloaded Files</a>
+      <a class="nav-item" href="#section-internal-layers">Internal Layers</a>
+      <a class="nav-item" href="#section-classifier">Classifier Results</a>
+      <a class="nav-item" href="#section-owners">Utility Owners</a>
+      <a class="nav-item" href="#section-fcc">FCC Data</a>
+      <a class="nav-item" href="#section-research">Web Research</a>
+    </nav>
+
+    <!-- Main Content -->
+    <div id="main-content">
+
+      <!-- 1. Summary -->
+      <section id="section-summary" class="result-section">
+        <div class="section-header">
+          <h2 class="section-title">Summary</h2>
+        </div>
+        <div class="card" id="summary-content">
+          <p style="color:var(--muted)">Loading…</p>
+        </div>
+      </section>
+
+      <!-- 2. Prioritizer Results -->
+      <section id="section-prioritizer" class="result-section">
+        <div class="section-header">
+          <h2 class="section-title">Prioritizer Results</h2>
+          <span class="section-count" id="prioritizer-count">—</span>
+        </div>
+        <div id="prioritizer-content">
+          <p style="color:var(--muted)">Loading…</p>
+        </div>
+      </section>
+
+      <!-- 3. Downloaded Files -->
+      <section id="section-downloader" class="result-section">
+        <div class="section-header">
+          <h2 class="section-title">Downloaded Files</h2>
+        </div>
+        <div id="downloader-content">
+          <p style="color:var(--muted)">Loading…</p>
+        </div>
+      </section>
+
+      <!-- 3b. Internal Layers -->
+      <section id="section-internal-layers" class="result-section">
+        <div class="section-header">
+          <h2 class="section-title">Internal Layers</h2>
+        </div>
+        <div id="internal-layers-content">
+          <p style="color:var(--muted)">Loading…</p>
+        </div>
+      </section>
+
+      <!-- 4. Classifier Results -->
+      <section id="section-classifier" class="result-section">
+        <div class="section-header">
+          <h2 class="section-title">Classifier Results</h2>
+          <span class="section-count" id="classifier-count">—</span>
+        </div>
+        <div id="classifier-content">
+          <p style="color:var(--muted)">Loading…</p>
+        </div>
+      </section>
+
+      <!-- 5. Utility Owners -->
+      <section id="section-owners" class="result-section">
+        <div class="section-header">
+          <h2 class="section-title">Utility Owners</h2>
+          <span class="section-count" id="owners-count">—</span>
+        </div>
+        <div id="owners-content">
+          <p style="color:var(--muted)">Loading…</p>
+        </div>
+      </section>
+
+      <!-- 6. FCC Data -->
+      <section id="section-fcc" class="result-section">
+        <div class="section-header">
+          <h2 class="section-title">FCC Data</h2>
+          <span class="section-count" id="fcc-count">—</span>
+        </div>
+        <div id="fcc-content">
+          <p style="color:var(--muted)">Loading…</p>
+        </div>
+      </section>
+
+      <!-- 7. Web Research -->
+      <section id="section-research" class="result-section">
+        <div class="section-header">
+          <h2 class="section-title">Web Research</h2>
+          <span class="section-count" id="research-count">—</span>
+        </div>
+        <div id="research-content">
+          <p style="color:var(--muted)">Loading…</p>
+        </div>
+      </section>
+
+    </div><!-- /main-content -->
+  </div><!-- /results-layout -->
+
+  <div id="toast"></div>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

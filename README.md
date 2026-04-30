@@ -20,6 +20,7 @@ claude
 |------|-------------|
 | [polygon_query](tools/polygon_query/) | Query utility-owner tickets intersecting with polygon geometries (PostGIS). Outputs CSV, text report, and optional AI analysis. |
 | [taxonomy_organization_names](tools/taxonomy_organization_names/) | Extract all unique organization names from any MySQL ticket table in amiggi4mdb (T_OH_TICKET, T_CA_TICKET, etc.). Outputs a CSV for taxonomy building or classification. |
+| [project_research_tool](tools/project_research_tool/) | Local Flask web app: search a project by name/ID, select pipeline steps (blueprints prioritizer, document classifier, Drive folder, web research), and get a consolidated research report. Runs on port 5001. |
 
 ## How It Works
 
@@ -63,3 +64,4 @@ geoint_toolbox/
 - [@eyal-peleg-4m](https://github.com/eyal-peleg-4m)
 - [@eliyaavitan](https://github.com/eliyaavitan)
 - [@Uriele751](https://github.com/Uriele751)
+- [@Lishayteichman](https://github.com/Lishayteichman)

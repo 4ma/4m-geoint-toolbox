@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Research Tool</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="page-center">
+    <div class="card index-card">
+      <div class="index-logo">4MAP · GEOINT</div>
+      <h1 style="margin-bottom:6px">Project Research Tool</h1>
+      <p style="color:var(--muted);margin-bottom:28px">Search for a project, select pipeline steps, and get a consolidated research report.</p>
+
+      <form id="pipeline-form">
+
+        <!-- Project Search -->
+        <div class="form-group">
+          <label>Search by project name or ID</label>
+          <div class="search-wrapper">
+            <input
+              id="search-input"
+              class="input"
+              type="text"
+              placeholder="Type project name or UUID…"
+              autocomplete="off"
+            >
+            <div id="search-dropdown"></div>
+          </div>
+          <div id="project-confirm"></div>
+        </div>
+
+        <!-- Pipeline Steps -->
+        <div class="form-group" style="margin-top:20px">
+          <label>Pipeline Steps</label>
+          <div class="checkbox-grid" style="margin-top:8px">
+            <label class="checkbox-item">
+              <input type="checkbox" name="step" value="drive" checked> Drive Folder
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="step" value="prioritizer" checked> Blueprints Prioritizer
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="step" value="internal_layers"> Internal Layers
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="step" value="classifier" checked> Documents Classifying
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="step" value="research"> Web Research
+            </label>
+          </div>
+        </div>
+
+        <!-- Blueprints Prioritizer Filters (collapsible) -->
+        <div style="margin-top:8px">
+          <div class="collapsible-header" id="filters-toggle">
+            <span style="font-size:13px;font-weight:500">Blueprints Prioritizer Filters</span>
+            <span class="chevron">▾</span>
+          </div>
+          <div class="collapsible-body" id="filters-body">
+
+            <div class="form-group">
+              <label>Buffer distance (m)</label>
+              <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+                <input
+                  id="filter-buffer"
+                  class="input"
+                  type="number"
+                  value="500"
+                  min="0"
+                  step="50"
+                  list="buffer-presets"
+                  style="width:140px"
+                >
+                <datalist id="buffer-presets">
+                  <option value="0">
+                  <option value="50">
+                  <option value="100">
+                  <option value="150">
+                  <option value="200">
+                  <option value="250">
+                  <option value="300">
+                  <option value="350">
+                  <option value="400">
+                  <option value="450">
+                  <option value="500">
+                  <option value="600">
+                  <option value="700">
+                  <option value="800">
+                  <option value="1000">
+                  <option value="1500">
+                  <option value="2000">
+                </datalist>
+                <span style="color:var(--muted);font-size:12px">or type any value</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Table Sources</label>
+              <div class="checkbox-grid">
+                <label class="checkbox-item">
+                  <input type="checkbox" name="filter-source" value="public_records" checked> Public Records
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" name="filter-source" value="utility_owners" checked> Utility Owners
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Min File Size (MB)</label>
+              <input id="filter-min-size" class="input" type="number" value="0" min="0" step="0.1" style="width:140px">
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div style="margin-top:24px">
+          <button id="run-btn" class="btn btn-primary" type="submit" disabled style="width:100%;justify-content:center;padding:12px">
+            Run Pipeline
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay">
+    <div class="spinner"></div>
+    <div id="loading-msg">Running pipeline…</div>
+    <p style="color:var(--muted);font-size:12px">This may take a minute. Please wait.</p>
+  </div>
+
+  <div id="toast"></div>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
