@@ -1,0 +1,61 @@
+name: project_research_tool
+version: "1.0"
+title: Project Research Tool
+
+description: |
+  A local Flask web tool that runs a full research pipeline for a given project.
+  The user selects a project by name or ID, and the tool executes all research
+  steps sequentially: blueprint prioritization, file download, Gemini classification,
+  utility owner lookup, FCC data, and Claude-powered web research.
+
+  Results are rendered on a single page with a fixed sidebar, all sections populated,
+  and a "Save to Drive" button to persist the report.
+
+triggers:
+  - user wants a full research report for a project
+  - user wants to find blueprints, utility owners, and permits for a project area
+  - user has a project name or ID and wants to run the research pipeline
+  - user wants to save a research report to Google Drive
+
+out_of_scope:
+  - Does not support batch processing of multiple projects simultaneously
+  - Does not write to any database (read-only except Drive uploads)
+  - QGIS plugin steps (Prioritizer, Downloader, Utility Owners, FCC) are stubs until wired
+
+run:
+  working_directory: tools/project_research_tool
+  setup: |
+    pip install -r requirements.txt
+    cp .env.example .env   # fill in DB credentials + Drive service account + ANTHROPIC_API_KEY
+  start: python main.py
+  open: http://localhost:5000
+
+inputs:
+  project_name_or_id:
+    description: "Typed into the search field — matched against project_request.project_name or project_id"
+  filters:
+    description: "Optional Prioritizer filters: buffer_m, source_ids, file_types, min_file_size_mb"
+
+outputs:
+  results_page:
+    description: "Full HTML results page with 7 sections: Summary, Prioritizer, Downloads, Classifier, Utility Owners, FCC, Web Research"
+  drive_report:
+    description: "HTML results page saved to the project's Google Drive folder (via Save button)"
+
+databases:
+  analysis_operation:
+    tables: [on_demand.project_request]
+    purpose: project search and polygon retrieval
+  geo_ing:
+    tables: [db4data.municipalities_new, public_records.blueprints, public_records.blueprint_fragments]
+    purpose: municipality intersection + blueprint spatial query
+
+health:
+  status: experimental
+  last_tested: 2026-04-30
+  tested_by: lishay
+  notes: |
+    DB queries (project_query, municipality_query) and web research are fully implemented.
+    Drive folder creation is fully implemented.
+    QGIS plugin steps (Prioritizer, Downloader, Utility Owners, FCC) and Gemini Classifier
+    are stubs — marked not_implemented until plugin interfaces are confirmed.
