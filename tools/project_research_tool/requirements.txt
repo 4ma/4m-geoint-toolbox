@@ -1,0 +1,10 @@
+flask>=3.0
+python-dotenv>=1.0
+sqlalchemy>=2.0
+psycopg2-binary>=2.9
+pandas>=2.0
+anthropic>=0.40
+google-api-python-client>=2.100
+google-auth>=2.20
+geopandas>=0.14
+fiona>=1.9
