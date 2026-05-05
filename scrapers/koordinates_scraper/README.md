@@ -1,5 +1,23 @@
 # Koordinates Scraper
 
+## Background
+
+[koordinates.com](https://koordinates.com) is a geospatial data platform that hosts thousands of publicly available vector layers from cities, counties, and government agencies across the US and NZ.
+
+This tool was built to systematically discover and ingest US utility-related layers (roads, water lines, electric infrastructure, etc.) into 4m's S3 data lake for downstream use by the GEOINT team.
+
+The workflow is:
+1. **Scrape** — iterate over koordinates layer IDs, fetch metadata (title, geometry type, extent, feature count) via the public API — no auth needed
+2. **Filter** — keep only layers whose extent falls within the US bounding box
+3. **Export** — request a GeoPackage (GPKG) export from koordinates — requires session auth
+4. **Upload** — extract the `.gpkg` from the downloaded ZIP and upload to S3
+
+The `upload_zips.py` script handles the case where you already have ZIPs on disk from a previous run and just need to upload them.
+
+> This tool replaced the prototype scripts in `tools/koordinates/` (now removed). See git history on that path for the original exploratory code.
+
+---
+
 Scrapes layer metadata from koordinates.com, filters to US-only layers, exports GeoPackages, and uploads them to S3.
 
 ## Setup

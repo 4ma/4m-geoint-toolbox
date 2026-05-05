@@ -13,6 +13,8 @@ env/
 
 # Tool outputs (generated files)
 *.csv
+*.log
+*_log.json
 *_report.txt
 *_ai_report.md
 
