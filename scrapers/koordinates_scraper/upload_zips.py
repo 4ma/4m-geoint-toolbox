@@ -132,7 +132,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def main() -> int:
-    load_dotenv()
+    load_dotenv(Path(__file__).parent / ".env")
     args = build_parser().parse_args()
 
     if not args.zip_folder.exists():
