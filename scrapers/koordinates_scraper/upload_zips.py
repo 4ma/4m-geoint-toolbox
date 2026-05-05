@@ -24,8 +24,6 @@ from typing import Dict, List, Optional
 import pandas as pd
 from dotenv import load_dotenv
 
-from aws_utils_4ma.s3_storage_strategy import S3StorageStrategy
-
 GPKG_MIME = "application/geopackage+sqlite3"
 
 
@@ -58,6 +56,7 @@ def extract_first_gpkg(zip_path: Path):
 
 
 async def upload_gpkg(s3_bucket: str, s3_prefix: str, layer_id: str, gpkg_name: str, gpkg_bytes: io.BytesIO) -> Dict:
+    from aws_utils_4ma.s3_storage_strategy import S3StorageStrategy
     file_name = f"{Path(gpkg_name).stem}.gpkg"
     s3_key = f"{s3_prefix.rstrip('/')}/{file_name}"
     async with S3StorageStrategy(bucket_name=s3_bucket, prefix="") as s3:
