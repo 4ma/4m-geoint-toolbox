@@ -1,0 +1,77 @@
+name: koordinates_scraper
+version: "1.0"
+title: Koordinates Layer Scraper & S3 Pipeline
+
+description: |
+  Scrapes layer metadata from koordinates.com by ID range, filters to US-only
+  layers, requests GPKG exports, downloads ZIPs, extracts GeoPackages, and
+  uploads them to 4m's S3 bucket. Covers the full pipeline in one CLI command
+  or step-by-step via subcommands.
+
+  Also includes a standalone script to upload pre-downloaded local ZIPs to S3
+  without re-requesting exports from the API.
+
+triggers:
+  - user wants to scrape layer metadata from koordinates.com
+  - user wants to discover koordinates layers by ID range
+  - user wants to download koordinates layers as GeoPackage (GPKG) and upload to S3
+  - user wants to run the full koordinates pipeline end-to-end
+  - user has a CSV of koordinates layer IDs and wants to export and upload them
+  - user has ZIP files already downloaded from koordinates and wants to upload to S3
+
+out_of_scope:
+  - Does not filter layers by sector or keyword (see tools/koordinates/koordinates_filterng.py)
+  - Does not write to PostGIS — S3 upload only
+  - Does not support non-US layers (US bounding box filter applied automatically)
+  - Does not refresh koordinates session credentials automatically
+
+inputs:
+  id_range:
+    description: "Koordinates layer ID range to scrape"
+    format: "--start-id INT --end-id INT"
+    example: "--start-id 101290 --end-id 102290"
+  input_csv:
+    description: "CSV from a previous scrape run (for export-upload subcommand)"
+    format: "CSV with columns: layerID, title, extent"
+    example: "scraper_output.csv"
+  credentials:
+    description: "Koordinates session cookie and CSRF token"
+    note: "Set KOORDINATES_COOKIE and KOORDINATES_CSRF in .env — see .env.example"
+
+outputs:
+  scrape_csv:
+    description: "CSV of layer metadata (layerID, title, geometry_type, extent, feature_count, ...)"
+  s3_upload:
+    description: "GPKG files at s3://4m-geo-intelligence/local_layers_to_fetch/Koordinates/"
+  upload_summary:
+    description: "Optional summary CSV of uploaded layers (s3_url, checksum, file_size)"
+
+run:
+  working_directory: scrapers/koordinates_scraper
+  setup: |
+    cd scrapers/koordinates_scraper
+    pip install -r requirements.txt
+    cp .env.example .env   # fill in KOORDINATES_COOKIE and KOORDINATES_CSRF
+  commands:
+    full_pipeline: >
+      python pipeline.py all
+      --start-id 101290 --end-id 102290
+      --out-csv output.csv
+    scrape_only: >
+      python pipeline.py scrape
+      --start-id 101290 --end-id 102290
+      --out-csv output.csv
+    export_upload: >
+      python pipeline.py export-upload
+      --in-csv output.csv
+    upload_local_zips: >
+      python upload_zips.py --zip-folder ./downloads/
+
+health:
+  status: experimental
+  last_tested: 2026-05-05
+  tested_by: noashitritt
+  notes: "Cookie-based auth expires — refresh KOORDINATES_COOKIE and KOORDINATES_CSRF in .env before each run."
+
+depends_on:
+  - aws_utils_4ma (4ma internal package — install via 4ma-requirements.txt)
