@@ -1,0 +1,11 @@
+--trusted-host nexus3.dev.4m-a.org
+--extra-index https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus3.dev.4m-a.org/repository/4m-pypi-development/pypi
+--extra-index-url https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus3.dev.4m-a.org/repository/4m-pypi-development/simple
+--extra-index https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus3.dev.4m-a.org/repository/4m-pypi-releases/pypi
+--extra-index-url https://${NEXUS_USERNAME}:${NEXUS_PASSWORD}@nexus3.dev.4m-a.org/repository/4m-pypi-releases/simple
+
+4ma-db-handler==1.4.0.rc1
+4ma-common-utils==0.1.6rc1
+4ma-producer-consumer==1.5.0rc1
+4ma-aws-utils==0.5.0rc1
+4ma-geospatial-utils==0.3.0rc1
